@@ -66,4 +66,16 @@ Adicionalmente, necesitamos crear los siguientes endpoints para que podamos tene
     Tu API actual no tiene un sistema de autenticación (todavía), es por eso que la única forma de crear usuarios es directamente en la base de datos usando el Flask admin.
 
 
+
+    - Alvaro - Tabla user 
+    - Antonio - Tabla Planet
+    - Eric - Tabla people
+    - Guillermo - Tabla de favorite
+    - Javiera - Realations
+    - Jose David - get people
+    - Julian - pepple por id
+    - Maria - get planets
+    - Tobias - get plants is
+    - Valentina - añadir un planeta a favorite
+
 """
