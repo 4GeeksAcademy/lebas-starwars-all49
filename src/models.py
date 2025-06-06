@@ -1,5 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import String, Boolean
+from sqlalchemy import String, Boolean, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
 db = SQLAlchemy()
@@ -19,6 +19,13 @@ class User(db.Model):
             # do not serialize the password, its a security breach
         }
 
+
+
+class Planet(db.Model):
+    __tablename__ = "planet"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(80), nullable=False)
+    description: Mapped[str] = mapped_column(Text, nullable=True)
 
 """
 📝 Instrucciones
