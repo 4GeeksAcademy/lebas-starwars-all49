@@ -7,18 +7,22 @@ db = SQLAlchemy()
 
 class User(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
+    lastname: Mapped[str] = mapped_column(String(50), nullable=False)
     email: Mapped[str] = mapped_column(
         String(120), unique=True, nullable=False)
     password: Mapped[str] = mapped_column(nullable=False)
-    is_active: Mapped[bool] = mapped_column(Boolean(), nullable=False)
 
-    def serialize(self):
-        return {
-            "id": self.id,
-            "email": self.email,
-            # do not serialize the password, its a security breach
-        }
 
+    
+
+
+
+
+class Planet(db.Model):
+    __tablename__ = "planet"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(80), nullable=False)
+    description: Mapped[str] = mapped_column(Text, nullable=True)
 
 class People(db.Model):
     __tablename__ = "people"
@@ -85,5 +89,17 @@ Adicionalmente, necesitamos crear los siguientes endpoints para que podamos tene
 
     Tu API actual no tiene un sistema de autenticación (todavía), es por eso que la única forma de crear usuarios es directamente en la base de datos usando el Flask admin.
 
+
+
+    - Alvaro - Tabla user 
+    - Antonio - Tabla Planet
+    - Eric - Tabla people
+    - Guillermo - Tabla de favorite
+    - Javiera - Realations
+    - Jose David - get people
+    - Julian - pepple por id
+    - Maria - get planets
+    - Tobias - get plants is
+    - Valentina - añadir un planeta a favorite
 
 """
