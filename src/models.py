@@ -25,6 +25,23 @@ class Planet(db.Model):
     name: Mapped[str] = mapped_column(String(80), nullable=False)
     description: Mapped[str] = mapped_column(Text, nullable=True)
 
+class People(db.Model):
+    __tablename__ = "people"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(
+        String(50), unique=True, nullable=False)
+    description: Mapped[str] = mapped_column(
+        Text, nullable=False)
+
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "description": self.description,
+        }
+
+
 """
 📝 Instrucciones
 
