@@ -9,6 +9,7 @@ from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
 from models import db, User, People, Planet, Favorite
+import requests
 # from models import Person
 
 app = Flask(__name__)
@@ -75,10 +76,11 @@ def get_one_planet(planet_id=None):
     else:
         return jsonify(planet.serialize()), 200
 
+
 @app.route('/favorite/planet/<int:planet_id>', methods=['POST'])
 def add_favorite_planet(planet_id):
     body = request.json
-    favorite = Favorite(user_id = body['user_id'], planet_id = planet_id)
+    favorite = Favorite(user_id=body['user_id'], planet_id=planet_id)
     db.session.add(favorite)
     try:
         db.session.commit()
@@ -86,6 +88,60 @@ def add_favorite_planet(planet_id):
     except Exception as error:
         db.session.rollback()
         return jsonify(f'error: {error}')
+
+
+@app.route("/people-population",  methods=["GET"])
+def populate_people():
+
+    URL_PEOPLE = "https://swapi.tech/api/people?page=1&limit=50"
+    response = requests.get(URL_PEOPLE)
+    data = response.json()
+    for person in data["results"]:
+        response = requests.get(person["url"])
+        person_data = response.json()
+        person_data = person_data["result"]
+
+        people = People()
+        people.name = person_data["properties"]["name"]
+        people.description = person_data["description"]
+        people.eye_color = person_data["properties"]["eye_color"]
+
+        db.session.add(people)
+
+    try:
+        db.session.commit()
+        return jsonify("People saved"), 201
+
+    except Exception as error:
+        db.session.rollback()
+        return jsonify(f"Error: {error.args}")
+
+
+@app.route("/planet-population",  methods=["GET"])
+def populate_planet():
+
+    URL_PEOPLE = "https://swapi.tech/api/planets?page=1&limit=50"
+    response = requests.get(URL_PEOPLE)
+    data = response.json()
+    for person in data["results"]:
+        response = requests.get(person["url"])
+        person_data = response.json()
+        person_data = person_data["result"]
+
+        people = Planet()
+        people.name = person_data["properties"]["name"]
+        people.description = person_data["description"]
+        # people.eye_color = person_data["properties"]["eye_color"]
+
+        db.session.add(people)
+
+    try:
+        db.session.commit()
+        return jsonify("People saved"), 201
+
+    except Exception as error:
+        db.session.rollback()
+        return jsonify(f"Error: {error.args}")
 
 
 # this only runs if `$ python src/app.py` is executed
