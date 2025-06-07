@@ -16,7 +16,6 @@ class User(db.Model):
     favorites: Mapped[list["Favorite"]] = relationship(back_populates="user")
 
 
-
 class Planet(db.Model):
     __tablename__ = "planet"
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -33,7 +32,7 @@ class People(db.Model):
         String(50), unique=True, nullable=False)
     description: Mapped[str] = mapped_column(
         Text, nullable=False)
-    
+
     favorites: Mapped[list["Favorite"]] = relationship(back_populates="people")
 
     def serialize(self):
@@ -48,40 +47,18 @@ class Favorite(db.Model):
     __tablename__ = "favorite"
     id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=False)
-    planet_id: Mapped[int] = mapped_column(ForeignKey("planet.id"), nullable=True)
-    people_id: Mapped[int] = mapped_column(ForeignKey("people.id"), nullable=True)
+    planet_id: Mapped[int] = mapped_column(
+        ForeignKey("planet.id"), nullable=True)
+    people_id: Mapped[int] = mapped_column(
+        ForeignKey("people.id"), nullable=True)
 
     user: Mapped["User"] = relationship(back_populates="favorites")
     planet: Mapped["Planet"] = relationship(back_populates="favorites")
     people: Mapped["People"] = relationship(back_populates="favorites")
 
+
 """
-📝 Instrucciones
 
-Table user: 
-    id: int
-    lastname: str
-    email: str
-    password: str
-
-Table planet:
-    id: int
-    name: str
-    description: str
-
-Table people:
-    id: int
-    name: str
-    description: str
-
-    
-asociación 
-Table favorite:
-    id: int
-    user_id: int
-    planet_id: int     id ---  user_id ----- people_id ---- planet_id ----
-    people_id: int      1         1             1              null
-                        2         1             null             1       
 
 
 Crea una API conectada a una base de datos e implemente los siguientes endpoints (muy similares a SWAPI.dev or SWAPI.tech):
