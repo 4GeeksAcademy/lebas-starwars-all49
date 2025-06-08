@@ -10,7 +10,7 @@ from utils import APIException, generate_sitemap
 from admin import setup_admin
 from models import db, User, People, Planet, Favorite
 import requests
-# from models import Person
+
 
 app = Flask(__name__)
 app.url_map.strict_slashes = False
@@ -42,6 +42,15 @@ def handle_invalid_usage(error):
 def sitemap():
     return generate_sitemap(app)
 
+@app.route("/user", methods=["GET"])
+def get_users():
+    users = User.query.all()
+    return jsonify([item.serialize() for item in users]), 200
+
+@app.route("/users/favorites", methods=["GET"])
+def get_users_favorites():
+    favorites = Favorite.query.all()
+    return jsonify([item.serialize() for item in favorites]), 200   
 
 @app.route("/people", methods=["GET"])
 def get_people():
@@ -54,7 +63,7 @@ def get_one_people(people_id=None):
     person = People.query.get(people_id)
 
     if person is None:
-        return jsonify("User not found"), 404
+        return jsonify("Character not found"), 404
 
     else:
         return jsonify(person.serialize())
@@ -71,7 +80,7 @@ def get_one_planet(planet_id=None):
     planet = Planet.query.get(planet_id)
 
     if planet is None:
-        return jsonify("User not found"), 404
+        return jsonify("Planet not found"), 404
 
     else:
         return jsonify(planet.serialize()), 200
@@ -84,10 +93,50 @@ def add_favorite_planet(planet_id):
     db.session.add(favorite)
     try:
         db.session.commit()
-        return jsonify('Planet saved'), 201
+        return jsonify('Planet saved in Favorite'), 201
     except Exception as error:
         db.session.rollback()
         return jsonify(f'error: {error}')
+
+@app.route('/favorite/people/<int:people_id>', methods=['POST'])
+def add_favorite_people(people_id):
+    body = request.json
+    favorite = Favorite(user_id=body['user_id'], people_id=people_id)
+    db.session.add(favorite)
+    try:
+        db.session.commit()
+        return jsonify('Character saved in Favorite'), 201
+    except Exception as error:
+        db.session.rollback()
+        return jsonify(f'error: {error}')    
+
+@app.route('/favorite/planet/<int:planet_id>', methods=['DELETE'])
+def del_favorite_planet(planet_id):
+    body = request.json
+    favorite = Favorite.query.filter_by(user_id=body['user_id'], planet_id=planet_id).first()
+    if not favorite:
+        return jsonify("Favorite not found"), 404
+    db.session.delete(favorite)
+    try:
+        db.session.commit()
+        return jsonify('Planet deleted from Favorite'), 200
+    except Exception as error:
+        db.session.rollback()
+        return jsonify(f'error: {error}')  
+
+@app.route('/favorite/people/<int:people_id>', methods=['DELETE'])
+def del_favorite_people(people_id):
+    body = request.json
+    favorite = Favorite.query.filter_by(user_id=body['user_id'], people_id=people_id).first()
+    if not favorite:
+        return jsonify("Favorite not found"), 404
+    db.session.delete(favorite)
+    try:
+        db.session.commit()
+        return jsonify('Character deleted from Favorite'), 200
+    except Exception as error:
+        db.session.rollback()
+        return jsonify(f'error: {error}')                 
 
 
 @app.route("/people-population",  methods=["GET"])
@@ -120,24 +169,23 @@ def populate_people():
 @app.route("/planet-population",  methods=["GET"])
 def populate_planet():
 
-    URL_PEOPLE = "https://swapi.tech/api/planets?page=1&limit=50"
-    response = requests.get(URL_PEOPLE)
+    URL_PLANET = "https://swapi.tech/api/planets?page=1&limit=50"
+    response = requests.get(URL_PLANET)
     data = response.json()
-    for person in data["results"]:
-        response = requests.get(person["url"])
-        person_data = response.json()
-        person_data = person_data["result"]
+    for planet in data["results"]:
+        response = requests.get(planet["url"])
+        planet_data = response.json()
+        planet_data = planet_data["result"]
 
         people = Planet()
-        people.name = person_data["properties"]["name"]
-        people.description = person_data["description"]
-        # people.eye_color = person_data["properties"]["eye_color"]
+        people.name = planet_data["properties"]["name"]
+        people.description = planet_data["description"]
 
-        db.session.add(people)
+        db.session.add(planet)
 
     try:
         db.session.commit()
-        return jsonify("People saved"), 201
+        return jsonify("Planet saved"), 201
 
     except Exception as error:
         db.session.rollback()
