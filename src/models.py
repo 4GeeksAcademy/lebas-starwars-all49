@@ -15,6 +15,13 @@ class User(db.Model):
 
     favorites: Mapped[list["Favorite"]] = relationship(back_populates="user")
 
+    def serialize(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "email": self.email,
+        }
+
 
 class Planet(db.Model):
     __tablename__ = "planet"
